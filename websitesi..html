@@ -5,190 +5,340 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Depre - Karanlıkta Bir Aşk</title>
     <style>
-        /* Tam Ekran ve Renk Körü Dostu Tema */
+        /* Renk Körü Dostu & Depresif Tema 
+         - Kırmızı/Yeşil yerine Mavi/Altın sarısı ve yüksek kontrastlı griler kullanıldı.
+         - Protanopi ve Döteranopi için tamamen uygundur.
+        */
         :root {
-            --accent-blue: #3b82f6; 
-            --accent-gold: #fbbf24;
-            --glass-bg: rgba(15, 23, 42, 0.4);
+            --bg-dark: #020617; /* Çok koyu gece mavisi/siyah */
+            --bg-panel: #0f172a;
+            --text-light: #f8fafc; /* Tam beyaz yerine göz yormayan kırık beyaz */
+            --text-muted: #94a3b8;
+            --accent-color: #3b82f6; /* Güvenli Mavi */
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --button-bg: rgba(15, 23, 42, 0.7);
         }
 
-        /* Tüm kenar boşluklarını sıfırla ve kaydırma çubuklarını gizle */
         body, html {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #000; /* Tam siyah oyun arkaplanı */
-            overflow: hidden;
-            font-family: 'Segoe UI', sans-serif;
-            touch-action: none; /* Mobilde istenmeyen kaydırmaları engeller */
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Georgia', serif; /* Roman/Hikaye hissiyatı için tırnaklı font */
+            overflow-x: hidden;
+            touch-action: pan-y; /* Dokunmatik ekranda kazara yakınlaştırmayı önler */
         }
 
+        /* Arka plan sis/karanlık efekti */
+        .ambient-background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 30%, #1e293b 0%, #020617 80%);
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Başlık Alanı */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 2s ease-in;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin: 0 0 10px 0;
+            letter-spacing: 6px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: normal;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-style: italic;
+            max-width: 600px;
+            line-height: 1.6;
+            margin: 0 auto;
+            border-top: 1px solid #334155;
+            padding-top: 15px;
+        }
+
+        /* Oyun Konteyneri - 16:9 Oranını korur */
         .game-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            position: relative;
+            width: 100%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9; 
+            background-color: #000;
+            border-radius: 4px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 0 1px #334155;
+            overflow: hidden;
         }
 
-        /* Oyunun kendisini çağıran iframe */
         iframe {
             width: 100%;
             height: 100%;
             border: none;
             display: block;
+            background-color: #000;
         }
 
-        /* Sanal Kontrol Butonları Alanı */
-        .virtual-controls {
+        /* Sanal Tuşlar Katmanı */
+        .controls-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            pointer-events: none; /* Tıklamaların oyuna geçmesine izin ver */
+            height: 40%; /* Sadece alt kısıma tıklanabilir alan koy */
+            pointer-events: none; /* Boşluklara tıklanınca oyuna geçsin */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            box-sizing: border-box;
             z-index: 10;
         }
 
-        /* Buton Tasarımı (Büyük, görünür, yarı şeffaf) */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            pointer-events: auto; /* Sadece butonların olduğu yer tıklanabilir olsun */
+        }
+
         .v-btn {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            background-color: var(--glass-bg);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 26px;
+            width: 65px;
+            height: 65px;
+            background-color: var(--button-bg);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-family: sans-serif;
+            font-size: 24px;
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             user-select: none;
             -webkit-user-select: none;
             transition: all 0.1s ease;
-            pointer-events: auto; /* Sadece butonların olduğu yer tıklanabilir */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
 
-        /* Butona basıldığında (Mavi ve Altın Sarısı yüksek kontrast) */
-        .v-btn:active, .v-btn.active {
-            background-color: rgba(59, 130, 246, 0.6); 
-            border-color: var(--accent-gold); 
-            color: var(--accent-gold);
-            transform: scale(0.9);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+        /* Basılma Efekti (Renk körü dostu mavi parlama) */
+        .v-btn:active, .v-btn.is-pressed {
+            background-color: var(--accent-color);
+            border-color: var(--text-light);
+            transform: translateY(4px) scale(0.95);
+            box-shadow: 0 0 20px var(--accent-glow);
+            color: #fff;
         }
 
-        /* Buton Konumlandırmaları - Mobil parmak ergonomisi */
-        #btnA {
-            bottom: 40px;
-            left: 30px;
+        footer {
+            margin-top: auto;
+            padding-top: 3rem;
+            text-align: center;
+            color: #475569;
+            font-size: 0.9rem;
+            font-family: sans-serif;
         }
 
-        #btnD {
-            bottom: 40px;
-            left: 120px; 
+        /* Güvenlik uyarısı mesajı */
+        .cors-warning {
+            display: none;
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: sans-serif;
+            font-size: 0.85rem;
+            max-width: 600px;
+            text-align: center;
         }
 
-        #btnW {
-            bottom: 40px;
-            right: 30px; 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Daha küçük telefonlar için buton boyut ayarı */
-        @media (max-width: 600px) {
-            .v-btn { width: 60px; height: 60px; font-size: 22px; }
-            #btnA { bottom: 30px; left: 20px; }
-            #btnD { bottom: 30px; left: 100px; }
-            #btnW { bottom: 30px; right: 20px; }
+        /* Mobil Cihazlar için Düzenlemeler */
+        @media (max-width: 768px) {
+            .main-container { padding: 0; justify-content: flex-start; }
+            header { margin-top: 20px; padding: 0 15px; margin-bottom: 1.5rem; }
+            .game-wrapper { border-radius: 0; border-left: none; border-right: none; }
+            .controls-overlay { padding: 15px; height: 50%; }
+            .v-btn { width: 55px; height: 55px; font-size: 20px; border-radius: 8px; background-color: rgba(15, 23, 42, 0.8); border-color: rgba(255,255,255,0.3);}
+            footer { padding: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-wrapper">
-        <!-- DİKKAT: src kısmı artık oyun.html'i çağırıyor -->
-        <iframe id="game-frame" src="oyun.html" allowfullscreen="true" scrolling="no"></iframe>
+    <div class="ambient-background"></div>
 
-        <!-- Sanal Kontrol Butonları -->
-        <div class="virtual-controls">
-            <div class="v-btn" id="btnA" data-key="a" data-code="65">A</div>
-            <div class="v-btn" id="btnD" data-key="d" data-code="68">D</div>
-            <div class="v-btn" id="btnW" data-key="w" data-code="87">W</div>
+    <div class="main-container">
+        <header>
+            <h1>Depre</h1>
+            <div class="quote">
+                "Karanlıkta aradığın kişi belki de kaybolmuştur, tıpkı senin gibi... <br>
+                Zihnin gölgelerinde son bir adım at."
+            </div>
+        </header>
+
+        <div class="game-wrapper">
+            <!-- Oyun İframe -->
+            <iframe id="game-frame" src="https://mehmetc04.github.io/Depre/" allowfullscreen="true" scrolling="no"></iframe>
+
+            <!-- Sanal Tuşlar (Oyunun üstüne bindirilmiş) -->
+            <div class="controls-overlay">
+                <!-- Sol Tuşlar (A ve D) -->
+                <div class="btn-group left-group">
+                    <div class="v-btn" data-key="a" data-code="65">A</div>
+                    <div class="v-btn" data-key="d" data-code="68">D</div>
+                </div>
+                
+                <!-- Sağ Tuş (W - Zıplama/Yukarı) -->
+                <div class="btn-group right-group">
+                    <div class="v-btn" data-key="w" data-code="87">W</div>
+                </div>
+            </div>
         </div>
+
+        <div id="cors-warning" class="cors-warning">
+            Sanal tuşlar çalışmıyorsa, tarayıcı güvenlik kısıtlamaları nedeniyledir. Lütfen bu sayfayı oyunu barındırdığınız GitHub hesabına yükleyin.
+        </div>
+
+        <footer>
+            Depre &copy; 2026 | Sadece klavye veya ekrandaki butonları kullanın.
+        </footer>
     </div>
 
     <script>
         const buttons = document.querySelectorAll('.v-btn');
         const gameFrame = document.getElementById('game-frame');
+        const warningBox = document.getElementById('cors-warning');
 
-        function simulateKeyEvent(type, keyStr, keyCode) {
-            const eventProps = {
+        // Tarayıcılar arası güvenliği (CORS) kontrol et
+        // Eğer bu dosya blogger'da, oyun github'da ise bu hata fırlatacaktır.
+        let isSameOrigin = false;
+        gameFrame.onload = function() {
+            try {
+                // İframe içeriğine erişmeyi deniyoruz
+                let doc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+                isSameOrigin = true; 
+            } catch (err) {
+                // Hata verirse demek ki farklı sitelerdeler ve güvenlik engeli var
+                isSameOrigin = false;
+                warningBox.style.display = 'block'; // Uyarıyı göster
+                console.error("Tarayıcı Güvenliği Engeli (CORS): Oyun farklı bir sitede olduğu için sanal tuşlar içeri gönderilemiyor. Bu HTML dosyasını GitHub deponuza yüklemelisiniz.");
+            }
+        };
+
+        // Gelişmiş Klavye Simülatörü
+        function simulateKey(type, keyStr, keyCode) {
+            const eventObj = new KeyboardEvent(type, {
                 key: keyStr,
                 code: 'Key' + keyStr.toUpperCase(),
                 keyCode: keyCode,
                 which: keyCode,
                 bubbles: true,
-                cancelable: true,
-                composed: true
-            };
+                cancelable: true
+            });
 
-            // 1. Ana sayfaya gönder
-            document.dispatchEvent(new KeyboardEvent(type, eventProps));
+            // 1. Olayı mevcut dökümana gönder
+            document.dispatchEvent(eventObj);
 
-            // 2. İframe içine gönder (İkisi de github'da olduğu için artık CORS hatası vermez, direkt çalışır!)
-            try {
-                if (gameFrame.contentWindow && gameFrame.contentWindow.document) {
+            // 2. Eğer aynı sitede barındırılıyorsa (GitHub'a yüklendiyse) olayları iframe içine zorla
+            if (isSameOrigin) {
+                try {
                     const iframeDoc = gameFrame.contentWindow.document;
-                    iframeDoc.dispatchEvent(new KeyboardEvent(type, eventProps));
+                    iframeDoc.dispatchEvent(new KeyboardEvent(type, eventObj));
                     
+                    // Unity WebGL genelde canvas üzerinden dinler
                     const canvas = iframeDoc.querySelector('canvas');
                     if (canvas) {
-                        canvas.dispatchEvent(new KeyboardEvent(type, eventProps));
+                        canvas.dispatchEvent(new KeyboardEvent(type, eventObj));
                     }
+                } catch(e) {
+                    // Sessizce yut, üstte zaten uyarıyı verdik
                 }
-            } catch (e) {
-                console.error("Tuş basımı iletilemedi:", e);
             }
         }
 
+        // Buton Dinleyicileri
         buttons.forEach(btn => {
             const key = btn.getAttribute('data-key');
             const code = parseInt(btn.getAttribute('data-code'));
             let pressInterval;
 
-            const handlePress = (e) => {
-                e.preventDefault(); 
-                btn.classList.add('active');
+            const triggerPress = (e) => {
+                if (e.cancelable) e.preventDefault(); // Ekranın kaymasını engelle
+                btn.classList.add('is-pressed');
                 
-                simulateKeyEvent('keydown', key, code);
+                // İlk basış
+                simulateKey('keydown', key, code);
 
+                // Basılı tutmayı simüle et (Unity için gereklidir)
                 clearInterval(pressInterval);
                 pressInterval = setInterval(() => {
-                    simulateKeyEvent('keydown', key, code);
+                    simulateKey('keydown', key, code);
                 }, 50); 
             };
 
-            const handleRelease = (e) => {
-                e.preventDefault();
-                btn.classList.remove('active');
+            const triggerRelease = (e) => {
+                if (e.cancelable) e.preventDefault();
+                btn.classList.remove('is-pressed');
                 
                 clearInterval(pressInterval);
-                simulateKeyEvent('keyup', key, code);
+                simulateKey('keyup', key, code);
             };
 
-            // Fare ve Dokunmatik Olayları
-            btn.addEventListener('mousedown', handlePress);
-            btn.addEventListener('mouseup', handleRelease);
-            btn.addEventListener('mouseleave', handleRelease);
+            // Fare Olayları (Bilgisayar testi için)
+            btn.addEventListener('mousedown', triggerPress);
+            window.addEventListener('mouseup', () => {
+                if(btn.classList.contains('is-pressed')) triggerRelease(new Event('mouseup'));
+            });
 
-            btn.addEventListener('touchstart', handlePress, {passive: false});
-            btn.addEventListener('touchend', handleRelease, {passive: false});
-            btn.addEventListener('touchcancel', handleRelease, {passive: false});
+            // Dokunmatik Olaylar (Mobil Cihazlar için)
+            btn.addEventListener('touchstart', triggerPress, {passive: false});
+            btn.addEventListener('touchend', triggerRelease, {passive: false});
+            btn.addEventListener('touchcancel', triggerRelease, {passive: false});
+            
+            // Kullanıcı parmağını tuştan kaydırıp dışarı çıkarsa tuşu bırak
+            btn.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const btnRect = btn.getBoundingClientRect();
+                
+                // Parmağın konumu butonun sınırları dışında mı?
+                if (touch.clientX < btnRect.left || touch.clientX > btnRect.right ||
+                    touch.clientY < btnRect.top || touch.clientY > btnRect.bottom) {
+                    if(btn.classList.contains('is-pressed')) triggerRelease(e);
+                }
+            }, {passive: false});
         });
+
+        // Sağ tık menüsünü kapat ki oyun oynarken yanlışlıkla açılmasın
+        document.addEventListener('contextmenu', event => event.preventDefault());
     </script>
 </body>
 </html>
